@@ -2,6 +2,7 @@
   let csrf = '';
   let currentUser = null;
   let sessionReady = Promise.resolve();
+  let pendingVote = null;
   const escapeText = (value) => String(value ?? '');
 
   async function request(path, options = {}) {
@@ -23,6 +24,8 @@
     await sessionReady;
     renderNavigation();
     if (document.getElementById('costumes')) loadCostumes();
+    if (document.getElementById('costume-detail')) loadCostumeDetail();
+    setupVoteDialog();
   }
 
   function renderNavigation() {
@@ -49,20 +52,68 @@
     const photo = document.createElement('div'); photo.className = 'costume-photo';
     if (item.foto_url) { const img = document.createElement('img'); img.src = item.foto_url; img.alt = `Foto del disfraz ${item.nombre}`; img.onerror = () => { photo.replaceChildren(); const placeholder = document.createElement('span'); placeholder.className = 'photo-placeholder'; placeholder.textContent = '🎭'; photo.append(placeholder); }; photo.append(img); }
     else { const placeholder = document.createElement('span'); placeholder.className = 'photo-placeholder'; placeholder.textContent = '🎭'; photo.append(placeholder); }
+    const detailUrl = `disfraz.html?id=${encodeURIComponent(item.id)}`;
+    const photoLink = document.createElement('a'); photoLink.className = 'costume-photo-link'; photoLink.href = detailUrl; photoLink.setAttribute('aria-label', `Ver el disfraz ${item.nombre} en detalle`); photoLink.append(photo);
     const content = document.createElement('div'); content.className = 'costume-content';
-    const title = document.createElement('h3'); title.textContent = item.nombre;
+    const title = document.createElement('h3'); const titleLink = document.createElement('a'); titleLink.className='costume-title-link'; titleLink.href=detailUrl; titleLink.textContent=item.nombre; title.append(titleLink);
     const description = document.createElement('p'); description.textContent = item.descripcion;
+    const details = document.createElement('a'); details.className='details-link'; details.href=detailUrl; details.textContent='Ver disfraz completo →';
     const bottom = document.createElement('div'); bottom.className = 'card-bottom';
     const count = document.createElement('span'); count.className = 'vote-count'; count.textContent = `🧡 ${item.votos} ${item.votos === 1 ? 'voto' : 'votos'}`;
     const button = document.createElement('button'); button.type = 'button'; button.className = `button ${item.ya_voto ? 'button-voted' : 'button-primary'}`;
     button.textContent = item.ya_voto ? 'Ya votaste' : 'Votar'; button.disabled = !!item.ya_voto;
-    button.addEventListener('click', async () => {
-      if (!currentUser) { location.href = 'login.html'; return; }
-      button.disabled = true; button.textContent = 'Enviando…';
-      try { await request('api/votos.php', { method: 'POST', body: JSON.stringify({ id_disfraz: item.id }) }); await loadCostumes(); showNotice('¡Listo! Tu voto quedó registrado.'); }
-      catch (e) { showNotice(e.message, true); button.disabled = false; button.textContent = 'Votar'; }
-    });
-    bottom.append(count, button); content.append(title, description, bottom); article.append(photo, content); return article;
+    button.addEventListener('click', () => askForVote(item));
+    bottom.append(count, button); content.append(title, description, details, bottom); article.append(photoLink, content); return article;
+  }
+
+  function setupVoteDialog() {
+    const dialog=document.getElementById('vote-dialog'); if(!dialog) return;
+    dialog.querySelectorAll('[data-close-vote]').forEach(button=>button.addEventListener('click',()=>dialog.close()));
+    document.getElementById('confirm-vote')?.addEventListener('click',submitVote);
+  }
+
+  function askForVote(item) {
+    if(!currentUser){location.href='login.html';return;}
+    const dialog=document.getElementById('vote-dialog');
+    if(!dialog){showNotice('No se pudo abrir la confirmación del voto.',true);return;}
+    pendingVote=item;
+    document.getElementById('vote-dialog-copy').textContent=`Vas a votar por “${item.nombre}”. Esta acción no se puede deshacer.`;
+    const message=document.getElementById('vote-dialog-message'); message.textContent=''; message.classList.add('hidden');
+    dialog.showModal();
+  }
+
+  async function submitVote() {
+    if(!pendingVote) return;
+    const button=document.getElementById('confirm-vote'); button.disabled=true; button.textContent='Registrando…';
+    try {
+      await request('api/votos.php',{method:'POST',body:JSON.stringify({id_disfraz:pendingVote.id})});
+      document.getElementById('vote-dialog').close(); pendingVote=null;
+      if(document.getElementById('costumes')) await loadCostumes();
+      if(document.getElementById('costume-detail')) await loadCostumeDetail();
+      showNotice('¡Listo! Tu voto quedó registrado.');
+    } catch(e) {
+      const message=document.getElementById('vote-dialog-message'); message.textContent=e.message; message.classList.remove('hidden'); message.classList.add('error');
+    } finally { button.disabled=false; button.textContent='Sí, votar'; }
+  }
+
+  async function loadCostumeDetail() {
+    const container=document.getElementById('costume-detail'); if(!container) return;
+    const id=new URLSearchParams(location.search).get('id');
+    if(!id||!/^\d+$/.test(id)){renderMissingCostume(container);return;}
+    container.replaceChildren(); const loading=document.createElement('div'); loading.className='loading-card'; loading.textContent='Cargando disfraz…'; container.append(loading);
+    try {
+      const data=await request('api/disfraces.php'); currentUser=data.usuario; renderNavigation();
+      const item=(data.disfraces||[]).find(disfraz=>String(disfraz.id)===id);
+      if(!item){renderMissingCostume(container);return;}
+      container.replaceChildren(); const article=document.createElement('article'); article.className='detail-card';
+      const visual=document.createElement('div'); visual.className='detail-image';
+      if(item.foto_url){const img=document.createElement('img');img.src=item.foto_url;img.alt=`Foto del disfraz ${item.nombre}`;img.onerror=()=>{visual.replaceChildren();const fallback=document.createElement('span');fallback.className='photo-placeholder';fallback.textContent='🎭';visual.append(fallback);};visual.append(img);}else{const fallback=document.createElement('span');fallback.className='photo-placeholder';fallback.textContent='🎭';visual.append(fallback);}
+      const content=document.createElement('div');content.className='detail-copy';const label=document.createElement('span');label.className='eyebrow';label.textContent='Disfraz participante';const title=document.createElement('h1');title.textContent=item.nombre;const description=document.createElement('p');description.className='detail-description';description.textContent=item.descripcion;const count=document.createElement('div');count.className='detail-votes';count.textContent=`🧡 ${item.votos} ${item.votos===1?'voto':'votos'}`;const button=document.createElement('button');button.type='button';button.className=`button ${item.ya_voto?'button-voted':'button-primary'} detail-vote-button`;button.disabled=!!item.ya_voto;button.textContent=item.ya_voto?'Ya votaste por este disfraz':'Votar por este disfraz';button.addEventListener('click',()=>askForVote(item));content.append(label,title,description,count,button);article.append(visual,content);container.append(article);
+    } catch(e) { container.replaceChildren(); const error=document.createElement('div'); error.className='empty-state'; const title=document.createElement('strong'); title.textContent='No pudimos cargar el disfraz'; const text=document.createElement('span'); text.className='muted'; text.textContent=e.message; error.append(title,text); container.append(error); }
+  }
+
+  function renderMissingCostume(container) {
+    container.replaceChildren(); const empty=document.createElement('div'); empty.className='empty-state'; const title=document.createElement('strong'); title.textContent='No encontramos ese disfraz'; const link=document.createElement('a'); link.className='details-link'; link.href='index.html'; link.textContent='Volver a la lista'; empty.append(title,link); container.append(empty);
   }
 
   async function loadCostumes() {
