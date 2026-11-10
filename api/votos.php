@@ -8,7 +8,7 @@ try {
     $pdo->beginTransaction();
     $exists = $pdo->prepare('SELECT id FROM disfraces WHERE id = ? AND eliminado = 0 FOR UPDATE'); $exists->execute([$id]);
     if (!$exists->fetch()) { $pdo->rollBack(); json_response(['error'=>'El disfraz ya no está disponible.'], 404); }
-    $alreadyVoted = $pdo->prepare('SELECT id FROM votos WHERE id_usuario = ? LIMIT 1 FOR UPDATE');
+    $alreadyVoted = $pdo->prepare('SELECT id FROM votos WHERE id_usuario = ? LIMIT 1');
     $alreadyVoted->execute([(int)$user['id']]);
     if ($alreadyVoted->fetch()) { $pdo->rollBack(); json_response(['error'=>'Ya emitiste tu único voto. No podés votar por otro disfraz.'], 409); }
     $stmt = $pdo->prepare('INSERT INTO votos (id_usuario, id_disfraz) VALUES (?, ?)');
@@ -19,7 +19,9 @@ try {
     $pdo->commit();
 } catch (PDOException $e) {
     if ($pdo->inTransaction()) $pdo->rollBack();
-    if ($e->getCode() === '23000') json_response(['error'=>'Ya emitiste tu único voto. No podés votar por otro disfraz.'], 409);
+    if (($e->getCode() === '23000' && (int)($e->errorInfo[1] ?? 0) === 1062) || $e->getCode() === '40001') {
+        json_response(['error'=>'Ya emitiste tu único voto. No podés votar por otro disfraz.'], 409);
+    }
     throw $e;
 }
 json_response(['mensaje'=>'Voto registrado.', 'id_disfraz'=>(int)$id, 'votos'=>$total], 201);
