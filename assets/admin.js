@@ -6,7 +6,7 @@
     const row=document.createElement('article'); row.className='admin-row'+(item.eliminado?' is-deleted':'');
     const thumb=document.createElement('div'); thumb.className='admin-thumb';
     if(item.foto_url){const img=document.createElement('img'); img.src=item.foto_url; img.alt=''; img.onerror=()=>{thumb.textContent='🎭';}; thumb.append(img);} else thumb.textContent='🎭';
-    const info=document.createElement('div'); info.className='admin-info'; const title=document.createElement('h3'); title.textContent=item.nombre; const desc=document.createElement('p'); desc.textContent=item.descripcion; const votes=document.createElement('span'); votes.className='vote-count'; votes.textContent=`${item.votos} ${item.votos===1?'voto':'votos'}`; info.append(title,desc,votes);
+    const info=document.createElement('div'); info.className='admin-info'; const title=document.createElement('h2'); title.textContent=item.nombre; const desc=document.createElement('p'); desc.textContent=item.descripcion; const votes=document.createElement('span'); votes.className='vote-count'; votes.textContent=`${item.votos} ${item.votos===1?'voto':'votos'}`; info.append(title,desc,votes);
     const actions=document.createElement('div'); actions.className='admin-actions';
     if(!item.eliminado){const edit=document.createElement('button'); edit.className='small-button'; edit.textContent='Editar'; edit.addEventListener('click',()=>openEditor(item)); const remove=document.createElement('button'); remove.className='small-button danger'; remove.textContent='Eliminar'; remove.addEventListener('click',()=>removeItem(item)); actions.append(edit,remove);}
     row.append(thumb,info,actions); return row;
