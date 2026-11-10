@@ -62,7 +62,7 @@
     const bottom = document.createElement('div'); bottom.className = 'card-bottom';
     const count = document.createElement('span'); count.className = 'vote-count'; count.textContent = `🧡 ${item.votos} ${item.votos === 1 ? 'voto' : 'votos'}`;
     const button = document.createElement('button'); button.type = 'button'; button.className = `button ${item.ya_voto ? 'button-voted' : 'button-primary'}`;
-    button.textContent = item.ya_voto ? 'Ya votaste' : 'Votar'; button.disabled = !!item.ya_voto;
+    button.textContent = item.ya_voto ? 'Ya usaste tu voto' : 'Votar'; button.disabled = !!item.ya_voto;
     button.addEventListener('click', () => askForVote(item));
     bottom.append(count, button); content.append(title, description, details); mainLink.append(photo, content); article.append(mainLink, bottom); return article;
   }
@@ -91,7 +91,7 @@
       document.getElementById('vote-dialog').close(); pendingVote=null;
       if(document.getElementById('costumes')) await loadCostumes();
       if(document.getElementById('costume-detail')) await loadCostumeDetail();
-      showNotice('¡Listo! Tu voto quedó registrado.');
+      showNotice('¡Listo! Tu voto quedó registrado. Solo podés votar una vez.');
     } catch(e) {
       const message=document.getElementById('vote-dialog-message'); message.textContent=e.message; message.classList.remove('hidden'); message.classList.add('error');
     } finally { button.disabled=false; button.textContent='Sí, votar'; }
@@ -109,7 +109,7 @@
       container.replaceChildren(); const article=document.createElement('article'); article.className='detail-card';
       const visual=document.createElement('div'); visual.className='detail-image';
       if(item.foto_url){const img=document.createElement('img');img.src=item.foto_url;img.alt=`Foto del disfraz ${item.nombre}`;img.onerror=()=>{visual.replaceChildren();const fallback=document.createElement('span');fallback.className='photo-placeholder';fallback.textContent='🎭';visual.append(fallback);};visual.append(img);}else{const fallback=document.createElement('span');fallback.className='photo-placeholder';fallback.textContent='🎭';visual.append(fallback);}
-      const content=document.createElement('div');content.className='detail-copy';const label=document.createElement('span');label.className='eyebrow';label.textContent='Disfraz participante';const title=document.createElement('h1');title.textContent=item.nombre;const description=document.createElement('p');description.className='detail-description';description.textContent=item.descripcion;const count=document.createElement('div');count.className='detail-votes';count.textContent=`🧡 ${item.votos} ${item.votos===1?'voto':'votos'}`;const button=document.createElement('button');button.type='button';button.className=`button ${item.ya_voto?'button-voted':'button-primary'} detail-vote-button`;button.disabled=!!item.ya_voto;button.textContent=item.ya_voto?'Ya votaste por este disfraz':'Votar por este disfraz';button.addEventListener('click',()=>askForVote(item));content.append(label,title,description,count,button);article.append(visual,content);container.append(article);
+      const content=document.createElement('div');content.className='detail-copy';const label=document.createElement('span');label.className='eyebrow';label.textContent='Disfraz participante';const title=document.createElement('h1');title.textContent=item.nombre;const description=document.createElement('p');description.className='detail-description';description.textContent=item.descripcion;const count=document.createElement('div');count.className='detail-votes';count.textContent=`🧡 ${item.votos} ${item.votos===1?'voto':'votos'}`;const button=document.createElement('button');button.type='button';button.className=`button ${item.ya_voto?'button-voted':'button-primary'} detail-vote-button`;button.disabled=!!item.ya_voto;button.textContent=item.ya_voto?'Ya usaste tu voto':'Votar por este disfraz';button.addEventListener('click',()=>askForVote(item));content.append(label,title,description,count,button);article.append(visual,content);container.append(article);
     } catch(e) { container.replaceChildren(); const error=document.createElement('div'); error.className='empty-state'; const title=document.createElement('strong'); title.textContent='No pudimos cargar el disfraz'; const text=document.createElement('span'); text.className='muted'; text.textContent=e.message; error.append(title,text); container.append(error); }
   }
 
