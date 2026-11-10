@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Disfraz | Halloween Vote</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="index.html"><span class="brand-icon">🎃</span><span>Halloween <b>Vote</b></span></a><nav id="navigation" class="nav-links"></nav></header>
+  <main class="container detail-container">
+    <a class="back-link" href="index.html">← Volver a los disfraces</a>
+    <div id="notice" class="notice hidden" role="status"></div>
+    <section id="costume-detail" class="detail-state" aria-live="polite"><div class="loading-card">Cargando disfraz…</div></section>
+  </main>
+  <dialog id="vote-dialog" class="modal vote-dialog">
+    <div class="form-stack"><div class="modal-heading"><div><span class="eyebrow">Confirmación</span><h2>¿Confirmás tu voto?</h2></div><button type="button" class="icon-button" data-close-vote aria-label="Cerrar">×</button></div><p id="vote-dialog-copy" class="muted"></p><div id="vote-dialog-message" class="notice hidden" role="alert"></div><div class="modal-actions"><button type="button" class="button button-secondary" data-close-vote>Cancelar</button><button type="button" id="confirm-vote" class="button button-primary">Sí, votar</button></div></div>
+  </dialog>
+  <script src="assets/app.js"></script>
+</body>
+</html>
