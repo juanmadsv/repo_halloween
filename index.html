@@ -15,6 +15,9 @@
     <div id="notice" class="notice hidden" role="status"></div>
     <section id="costumes" class="costume-grid" aria-live="polite"><div class="loading-card">Cargando disfraces…</div></section>
   </main>
+  <dialog id="vote-dialog" class="modal vote-dialog">
+    <div class="form-stack"><div class="modal-heading"><div><span class="eyebrow">Confirmación</span><h2>¿Confirmás tu voto?</h2></div><button type="button" class="icon-button" data-close-vote aria-label="Cerrar">×</button></div><p id="vote-dialog-copy" class="muted"></p><div id="vote-dialog-message" class="notice hidden" role="alert"></div><div class="modal-actions"><button type="button" class="button button-secondary" data-close-vote>Cancelar</button><button type="button" id="confirm-vote" class="button button-primary">Sí, votar</button></div></div>
+  </dialog>
   <footer class="site-footer">Halloween Vote <span>·</span> Una votación para disfrutar en comunidad</footer>
   <script src="assets/app.js"></script>
 </body>
