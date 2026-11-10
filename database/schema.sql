@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS votos (
   id_disfraz INT UNSIGNED NOT NULL,
   creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uq_voto_usuario_disfraz (id_usuario, id_disfraz),
+  UNIQUE KEY uq_voto_usuario (id_usuario),
   CONSTRAINT fk_votos_usuario FOREIGN KEY (id_usuario) REFERENCES usuarios(id) ON DELETE CASCADE,
   CONSTRAINT fk_votos_disfraz FOREIGN KEY (id_disfraz) REFERENCES disfraces(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
