@@ -9,11 +9,18 @@ Aplicación web en PHP + MySQL para publicar disfraces, registrar usuarios y vot
 
 ## Instalación en XAMPP
 
-1. Copiá la carpeta `halloween-vote` dentro de `C:\xampp\htdocs\`.
+1. Colocá el contenido del repositorio dentro de `C:\xampp\htdocs\halloween-vote\`. `index.html` y las carpetas `api`, `app`, `assets`, `database` y `scripts` deben quedar directamente dentro de esa carpeta.
 2. Iniciá Apache y MySQL desde el panel de XAMPP.
 3. Abrí `http://localhost/phpmyadmin`, importá `database/schema.sql` y ejecutalo.
 4. Revisá `app/config.php`. La configuración inicial usa `root`, contraseña vacía y puerto `3306`, que son los valores usuales de XAMPP.
-5. Creá la cuenta administradora desde una terminal abierta en la carpeta del proyecto:
+5. Para cargar los diez disfraces de ejemplo con sus imágenes y descripciones, abrí una terminal en la carpeta del proyecto y ejecutá:
+
+   ```bash
+   C:\xampp\php\php.exe database\seed_disfraces.php
+   ```
+
+   El script se puede ejecutar más de una vez: actualiza esos diez disfraces sin duplicarlos ni reiniciar sus votos.
+6. Creá la cuenta administradora desde una terminal abierta en la carpeta del proyecto:
 
    ```bash
    php scripts/create_admin.php admin "UnaClaveLargaDeAlMenos12"
@@ -21,7 +28,7 @@ Aplicación web en PHP + MySQL para publicar disfraces, registrar usuarios y vot
 
    En Windows también podés ejecutar el PHP de XAMPP con `C:\xampp\php\php.exe scripts\create_admin.php admin "UnaClaveLargaDeAlMenos12"`.
 
-6. Abrí `http://localhost/halloween-vote/`.
+7. Abrí `http://localhost/halloween-vote/`.
 
 El resto de las personas puede crear su cuenta desde “Registrarse”. Las cuentas nuevas siempre tienen rol `usuario`; el rol administrador se asigna desde el script de consola.
 
@@ -47,6 +54,7 @@ Las solicitudes que modifican datos requieren la cookie de sesión y el encabeza
 ## Notas
 
 - La columna `disfraces.votos` se incrementa dentro de la misma transacción que registra el voto.
+- Al tocar cualquier zona de la tarjeta desde el listado se abre la ficha con la imagen completa del disfraz. Cada acción de votar pregunta si se confirma el voto por el nombre del disfraz antes de enviarlo.
 - La tabla impide duplicados con una restricción única sobre usuario y disfraz.
 - `eliminado` es una baja lógica, por lo que el registro queda en la base para conservar el historial de votos.
 - Las fotos se guardan como BLOB en MySQL, en línea con el esquema solicitado. Para un despliegue de producción conviene guardar archivos en almacenamiento de objetos o disco y conservar en MySQL solo la referencia.
