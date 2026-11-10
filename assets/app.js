@@ -50,6 +50,7 @@
   function makeCard(item) {
     const article = document.createElement('article'); article.className = 'costume-card';
     const detailUrl = `disfraz.html?id=${encodeURIComponent(item.id)}`;
+    article.addEventListener('click', event => { if (event.target.closest('a, button')) return; location.href = detailUrl; });
     const mainLink = document.createElement('a'); mainLink.className = 'card-main-link'; mainLink.href = detailUrl; mainLink.setAttribute('aria-label', `Ver el disfraz ${item.nombre} completo`);
     const photo = document.createElement('div'); photo.className = 'costume-photo';
     if (item.foto_url) { const img = document.createElement('img'); img.src = item.foto_url; img.alt = `Foto del disfraz ${item.nombre}`; img.onerror = () => { photo.replaceChildren(); const placeholder = document.createElement('span'); placeholder.className = 'photo-placeholder'; placeholder.textContent = '🎭'; photo.append(placeholder); }; photo.append(img); }
