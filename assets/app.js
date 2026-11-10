@@ -49,21 +49,21 @@
 
   function makeCard(item) {
     const article = document.createElement('article'); article.className = 'costume-card';
+    const detailUrl = `disfraz.html?id=${encodeURIComponent(item.id)}`;
+    const mainLink = document.createElement('a'); mainLink.className = 'card-main-link'; mainLink.href = detailUrl; mainLink.setAttribute('aria-label', `Ver el disfraz ${item.nombre} completo`);
     const photo = document.createElement('div'); photo.className = 'costume-photo';
     if (item.foto_url) { const img = document.createElement('img'); img.src = item.foto_url; img.alt = `Foto del disfraz ${item.nombre}`; img.onerror = () => { photo.replaceChildren(); const placeholder = document.createElement('span'); placeholder.className = 'photo-placeholder'; placeholder.textContent = '🎭'; photo.append(placeholder); }; photo.append(img); }
     else { const placeholder = document.createElement('span'); placeholder.className = 'photo-placeholder'; placeholder.textContent = '🎭'; photo.append(placeholder); }
-    const detailUrl = `disfraz.html?id=${encodeURIComponent(item.id)}`;
-    const photoLink = document.createElement('a'); photoLink.className = 'costume-photo-link'; photoLink.href = detailUrl; photoLink.setAttribute('aria-label', `Ver el disfraz ${item.nombre} en detalle`); photoLink.append(photo);
     const content = document.createElement('div'); content.className = 'costume-content';
-    const title = document.createElement('h3'); const titleLink = document.createElement('a'); titleLink.className='costume-title-link'; titleLink.href=detailUrl; titleLink.textContent=item.nombre; title.append(titleLink);
+    const title = document.createElement('h3'); title.textContent = item.nombre;
     const description = document.createElement('p'); description.textContent = item.descripcion;
-    const details = document.createElement('a'); details.className='details-link'; details.href=detailUrl; details.textContent='Ver disfraz completo →';
+    const details = document.createElement('span'); details.className='details-link'; details.textContent='Ver imagen y descripción completas →';
     const bottom = document.createElement('div'); bottom.className = 'card-bottom';
     const count = document.createElement('span'); count.className = 'vote-count'; count.textContent = `🧡 ${item.votos} ${item.votos === 1 ? 'voto' : 'votos'}`;
     const button = document.createElement('button'); button.type = 'button'; button.className = `button ${item.ya_voto ? 'button-voted' : 'button-primary'}`;
     button.textContent = item.ya_voto ? 'Ya votaste' : 'Votar'; button.disabled = !!item.ya_voto;
     button.addEventListener('click', () => askForVote(item));
-    bottom.append(count, button); content.append(title, description, details, bottom); article.append(photoLink, content); return article;
+    bottom.append(count, button); content.append(title, description, details); mainLink.append(photo, content); article.append(mainLink, bottom); return article;
   }
 
   function setupVoteDialog() {
@@ -77,7 +77,7 @@
     const dialog=document.getElementById('vote-dialog');
     if(!dialog){showNotice('No se pudo abrir la confirmación del voto.',true);return;}
     pendingVote=item;
-    document.getElementById('vote-dialog-copy').textContent=`Vas a votar por “${item.nombre}”. Esta acción no se puede deshacer.`;
+    document.getElementById('vote-dialog-copy').textContent=`¿Está seguro que quiere votar por "${item.nombre}"?`;
     const message=document.getElementById('vote-dialog-message'); message.textContent=''; message.classList.add('hidden');
     dialog.showModal();
   }
